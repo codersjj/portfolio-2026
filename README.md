@@ -1,46 +1,87 @@
-# Astro Starter Kit: Basics
+# Shane | Frontend & Fullstack Developer Portfolio
 
-```sh
-bun create astro@latest -- --template basics
-```
+Welcome to the repository for my personal portfolio website. This project showcases my work, skills, and engineering thoughts, built with modern web technologies focusing on performance, accessibility, and design.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 🚀 Tech Stack
 
-## 🚀 Project Structure
+- **Framework:** [Astro 5](https://astro.build/) - For its island architecture and static site generation performance.
+- **Styling:** [Tailwind CSS 4](https://tailwindcss.com/) - For rapid, utility-first styling.
+- **Language:** [TypeScript](https://www.typescriptlang.org/) - For type safety and better developer experience.
+- **Animations:** 
+  - [Motion](https://motion.dev/) (formerly Framer Motion) for complex interactions.
+  - [AOS](https://michalsnik.github.io/aos/) (Animate On Scroll) for scroll-triggered animations.
+- **Physics:** [Matter.js](https://brm.io/matter-js/) - For interactive physical simulations.
+- **Icons:** [Lucide](https://lucide.dev/) - For clean, consistent SVG icons.
+- **Package Manager:** [Bun](https://bun.sh/) - For fast dependency installation and script execution.
 
-Inside of your Astro project, you'll see the following folders and files:
+## ✨ Features
+
+- **Responsive Design:** Fully optimized for mobile, tablet, and desktop devices.
+- **Dark Mode:** Built-in dark mode support (system preference & manual toggle).
+- **SEO Optimized:** Meta tags, Open Graph support, and sitemap generation.
+- **Blog System:** Engineering log for sharing technical insights, built with Astro Content Collections.
+- **Portfolio Showcase:** Dedicated sections for selected projects and detailed case studies.
+- **RSS Feed:** Automatic RSS feed generation for blog posts.
+- **Interactive Elements:** Smooth transitions, text animations, and physics-based interactions.
+
+## 📂 Project Structure
 
 ```text
 /
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+├── public/          # Static assets (fonts, images, icons)
+├── src/
+│   ├── assets/      # Processed assets
+│   ├── collections/ # Content collection definitions
+│   ├── components/  # Reusable UI components
+│   ├── config/      # Site and theme configuration
+│   ├── content/     # MDX content for blog posts
+│   ├── layouts/     # Page layouts (Base, Page, etc.)
+│   ├── pages/       # Astro file-based routing
+│   ├── plugins/     # Custom plugins
+│   └── styles/      # Global styles and CSS
+├── astro.config.mjs # Astro configuration
+├── tailwind.config.mjs # Tailwind configuration
+└── package.json     # Project dependencies
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## 🧞 Getting Started
 
-## 🧞 Commands
+All commands are run from the root of the project using **Bun**.
 
-All commands are run from the root of the project, from a terminal:
+### Prerequisites
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+- [Bun](https://bun.sh/) installed on your machine.
 
-## 👀 Want to learn more?
+### Installation
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```sh
+bun install
+```
+
+### Development
+
+Start the local development server at `http://localhost:4321`:
+
+```sh
+bun dev
+```
+
+### Build
+
+Build the production site to the `./dist/` directory:
+
+```sh
+bun build
+```
+
+### Preview
+
+Preview your build locally before deploying:
+
+```sh
+bun preview
+```
+
+## � License
+
+&copy; 2026 Shane. All rights reserved.
