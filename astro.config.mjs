@@ -6,7 +6,7 @@ import mdx from "@astrojs/mdx";
 
 import sitemap from "@astrojs/sitemap";
 
-import { remarkReadingTime } from "@/plugins/remark-reading-time";
+import { remarkReadingTime } from "./src/plugins/remark-reading-time";
 
 // https://astro.build/config
 export default defineConfig({
