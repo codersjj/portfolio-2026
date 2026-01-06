@@ -1,0 +1,16 @@
+[
+  {
+    "dates": "October 2023 - November 2024",
+    "role": "Frontend Engineer",
+    "company": "DiDi",
+    "description": "Led frontend development for an enterprise customer service platform serving 1,000+ agents. Delivered ~$65K/month in operational value, reduced manual coding time by 30% with custom CLI tools, and improved workflow efficiency by 12%. Tech stack: React, Next.js, TypeScript, Tailwind.",
+    "logo": "/assets/experiences/company-didi.png"
+  },
+  {
+    "dates": "June 2019 - October 2023",
+    "role": "Web Developer",
+    "company": "Shentie",
+    "description": "Built a multi-module railway engineering management system using Vue and TypeScript. Optimized load time by 45% (4.2s to 2.3s), reduced UI code duplication by 25% with reusable components, and established modern code quality standards.",
+    "logo": "/assets/experiences/company-shentie.jpg"
+  }
+]

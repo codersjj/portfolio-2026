@@ -1,0 +1,171 @@
+---
+title: Using WezTerm with Git Bash on Windows
+publishDate: 2026-01-06
+description: Set up WezTerm as your default terminal for Git Bash on Windows for a modern, GPU-accelerated experience.
+tags:
+  - WezTerm
+  - Windows
+  - Terminal
+  - Git Bash
+  - Productivity
+img: "/assets/blog/cover-using-wezterm-with-git-bash-on-windows.png"
+img_alt: "WezTerm text editor with Git Bash running on Windows"
+---
+
+If you are developing on Windows, you've probably used **Git Bash** at some point. While it works fine, the default Git Bash window feels outdated compared to modern terminals.
+
+This is where **WezTerm** comes in.
+
+WezTerm is a modern, GPU-accelerated terminal emulator that works beautifully on Windows. In this post, I'll show how I set up **WezTerm to run Git Bash by default**, giving me a much better terminal experience on Windows.
+
+---
+
+## Why WezTerm?
+
+WezTerm is a cross-platform terminal emulator written in **Rust**, and it offers a lot of features that make it stand out:
+
+- GPU-accelerated rendering for smooth performance
+- Tabs and split panes out of the box
+- Highly customizable via **Lua configuration**
+- Excellent font and color scheme support
+- Works consistently across Windows, macOS, and Linux
+
+If you enjoy tools like iTerm2 or Alacritty, WezTerm feels right at home—especially on Windows.
+
+---
+
+## Prerequisites
+
+Before starting, make sure you have the following installed:
+
+### 1. Git for Windows
+
+Git Bash comes with **Git for Windows**.
+The Bash executable is usually located at:
+
+```text
+C:\Program Files\Git\bin\bash.exe
+```
+
+If Git is already installed, you're good to go.
+
+### 2. WezTerm
+
+You can install WezTerm in several ways:
+
+- Using `winget`
+- Downloading the installer from the official website
+
+Installation guide: [https://wezterm.org/install/windows.html](https://wezterm.org/install/windows.html)
+
+---
+
+## Creating the WezTerm Configuration
+
+WezTerm is configured using a Lua file called `.wezterm.lua`.
+
+Create the file here:
+
+```text
+%USERPROFILE%\.wezterm.lua
+```
+
+Then add the following configuration:
+
+```lua
+local wezterm = require("wezterm")
+
+local config = wezterm.config_builder()
+
+-- Initial window size
+config.initial_cols = 128
+config.initial_rows = 28
+
+-- Appearance
+config.font_size = 11
+config.color_scheme = "Material Darker (base16)"
+
+-- Use Git Bash as the default shell
+config.default_prog = {
+  "C:\\Program Files\\Git\\bin\\bash.exe",
+  "--login",
+  "-i"
+}
+
+return config
+```
+
+This tells WezTerm to launch **Git Bash** instead of `cmd.exe` or PowerShell when it starts.
+
+> If Git is installed in a different directory on your machine, make sure to update the path accordingly.
+
+---
+
+## Launching WezTerm
+
+Once the configuration file is saved:
+
+* If WezTerm is already running, it will **reload the config automatically**
+* Otherwise, just start WezTerm normally
+
+You should now see Git Bash running inside WezTerm, with all the benefits of a modern terminal.
+
+---
+
+## Customizing the Experience
+
+One of the best parts of WezTerm is how easy it is to customize.
+
+### Changing Color Schemes
+
+WezTerm ships with many built-in color schemes.
+You can browse them here: [https://wezterm.org/colorschemes/index.html](https://wezterm.org/colorschemes/index.html)
+
+To switch themes, simply update:
+
+```lua
+config.color_scheme = "Gruvbox Dark"
+```
+
+### Fonts
+
+You can also customize the font:
+
+```lua
+config.font = wezterm.font("JetBrains Mono")
+```
+
+This makes a huge difference for readability, especially during long coding sessions.
+
+---
+
+## Tips and Ideas
+
+* Use tabs and split panes to manage multiple projects at once
+* Combine WezTerm with **WSL** for Linux-based workflows
+* Take advantage of Lua to create dynamic or context-aware configs
+* Customize key bindings to match your habits
+
+WezTerm can be as simple or as powerful as you want it to be.
+
+---
+
+## Conclusion
+
+By combining **WezTerm** with **Git Bash**, you get:
+
+✅ A modern terminal experience on Windows
+
+✅ Better performance and visuals
+
+✅ A highly customizable setup that grows with you
+
+If you spend a lot of time in the terminal, this setup is absolutely worth it. Once you get used to WezTerm, it's hard to go back.
+
+Happy hacking 🚀
+
+## References
+
+- [WezTerm GitHub](https://github.com/wez/wezterm)
+- [WezTerm Documentation](https://wezterm.org/)
+- [WezTerm and Git Bash on Windows](https://blog.likewise.org/2025/09/wezterm-and-git-bash-on-windows/)

@@ -1,0 +1,303 @@
+---
+title: Deploying a Combined React + Node.js App on Vercel
+publishDate: 2026-01-05
+description: A practical guide for deploying a unified React frontend and Node.js backend application on Vercel.
+tags:
+  - React
+  - Node.js
+  - Vercel
+  - Deployment
+img: "/assets/blog/cover-deploying-react-and-nodejs-on-vercel.png"
+img_alt: "Deploying React and Node.js on Vercel"
+featured: true
+---
+
+{/* # Deploying a Combined React + Node.js App on Vercel (for Small to Medium Projects) */}
+
+> **Who this guide is for**
+>
+> This article is intended for intermediate frontend or full-stack developers who want a **simple, unified deployment** for a React + Node.js application (such as side projects, MVPs, or internal tools).
+> It is **not** meant as a best-practice architecture for large-scale production systems.
+
+---
+
+Deploying a React frontend and a Node.js backend together on Vercel can be confusing at first—especially when you want everything in a single repository and a single deployment.
+
+In this guide, we'll walk through a **practical, working setup** that:
+
+- Uses **Vite + React** for the frontend
+- Uses **Express** for the backend
+- Deploys everything through **Vercel**
+- Keeps the developer experience simple and predictable
+
+This approach trades some architectural purity for **clarity and convenience**, which is often the right choice for small to medium projects.
+
+---
+
+## Prerequisites
+
+- **Node.js** `20.19+` or `22.12+`
+  Vite currently requires these versions.
+- A **Vercel account**
+- Basic familiarity with:
+  - React
+  - Node.js / Express
+  - npm scripts
+
+---
+
+## Project Structure
+
+We'll assume the following monorepo structure:
+
+```text
+your-project-name/
+├── api/
+│   └── index.js
+├── backend/
+│   ├── src/
+│   │   ├── server.js
+│   │   └── config/
+│   │       └── env.js
+│   ├── .env
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── vite.config.ts
+│   └── package.json
+├── vercel.json
+├── package.json
+└── README.md
+```
+
+- **frontend/**: React + Vite application
+- **backend/**: Express server
+- **api/**: Vercel Function entry point
+- **vercel.json**: Vercel deployment configuration
+
+---
+
+## Backend: Express Server Setup
+
+### `backend/src/server.js`
+
+```js
+import express from "express";
+import path from "path";
+import { ENV } from "./config/env.js";
+
+const projectRoot = path.resolve();
+
+const app = express();
+
+// define an API endpoint
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ message: "Success" });
+});
+
+// make our app ready for deployment
+if (ENV.NODE_ENV === "production") {
+  // Serve the static files from the React app
+  app.use(express.static(path.join(projectRoot, "../frontend/dist")));
+
+  // Handle requests by serving the index.html file for all other routes
+  app.get("/{*any}", (req, res) => {
+    res.sendFile(path.join(projectRoot, "../frontend/dist/index.html"));
+  });
+}
+
+// Starts the HTTP server listening for connections.
+app.listen(ENV.PORT, () => console.log("Server is up and running"));
+```
+
+This server:
+
+- Exposes a simple API endpoint
+- Serves the built React app in production
+
+---
+
+### Environment Configuration
+
+#### `backend/src/config/env.js`
+
+```js
+import dotenv from "dotenv";
+
+dotenv.config();
+
+export const ENV = {
+  NODE_ENV: process.env.NODE_ENV || "development",
+  PORT: parseInt(process.env.PORT || "3000", 10),
+};
+```
+
+#### `backend/.env`
+
+```env
+NODE_ENV=production
+```
+
+#### `backend/package.json`
+
+```json
+{
+  "scripts": {
+    "start": "node src/server.js"
+  }
+}
+```
+
+---
+
+## Frontend: Build with Vite
+
+From the `frontend` directory:
+
+```bash
+npm run build
+```
+
+Ensure your `package.json` contains:
+
+```json
+{
+  "scripts": {
+    "build": "tsc -b && vite build"
+  }
+}
+```
+
+This produces a `dist/` directory, which will later be served by Express.
+
+---
+
+## Root `package.json` Scripts
+
+At the project root:
+
+```json
+{
+  "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "npm run start --prefix backend"
+  }
+}
+```
+
+This allows Vercel to:
+
+- Install dependencies for both apps
+- Build the frontend
+- Start the backend
+
+---
+
+## Vercel Configuration
+
+### `vercel.json`
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ],
+  "buildCommand": "npm install --prefix backend --production=false && npm install --prefix frontend --production=false && npm run build --prefix frontend"
+}
+```
+
+Vercel requires backend code to live under an `api/` directory (see: [https://vercel.com/docs/project-configuration#description](https://vercel.com/docs/project-configuration#description)).
+
+### `api/index.js`
+
+```js
+import "../backend/src/server.js";
+```
+
+Since we're using ES modules, add this to the root `package.json`:
+
+```json
+{
+  "type": "module"
+}
+```
+
+---
+
+## Deploying with Vercel CLI
+
+```bash
+pnpm i -g vercel
+vercel login
+
+# Deploy with Environment Variables
+vercel -e NODE_ENV=production -e PORT=3000
+
+# Deploy to production with Environment Variables
+vercel --prod -e NODE_ENV=production -e PORT=3000
+```
+
+After deployment, Vercel will provide a public URL.
+
+---
+
+## Verifying the Deployment
+
+- Frontend: `https://your-domain.vercel.app`
+- Backend: `https://your-domain.vercel.app/api/health`
+
+Both should work from the same domain.
+
+---
+
+## Why This Approach?
+
+This setup is intentionally **simple**:
+
+- Single repository
+- Single deployment
+- Familiar Express server
+
+It works well for:
+
+- MVPs
+- Side projects
+- Internal tools
+
+However, for large-scale or high-traffic systems, you should consider:
+
+- Separate frontend and backend deployments
+- Native Vercel Serverless Functions
+- Frameworks like Next.js
+
+---
+
+## Conclusion
+
+Deploying a combined React and Node.js app on Vercel doesn't have to be complicated.
+
+While this approach isn't perfect for every scenario, it provides a **clear, maintainable, and beginner-friendly** deployment strategy for many real-world projects.
+
+If you understand the trade-offs, it can be a very effective solution.
+
+Thanks for reading!
+
+## References
+
+- [https://vercel.com/docs/project-configuration](https://vercel.com/docs/project-configuration)
+- [https://github.com/vercel-support/express-vercel](https://github.com/vercel-support/express-vercel)
+- [https://vercel.com/docs/cli](https://vercel.com/docs/cli)
+- [https://vercel.com/docs/frameworks/backend/express#exporting-the-express-application](https://vercel.com/docs/frameworks/backend/express#exporting-the-express-application)
+- [https://vercel.com/docs/builds/configure-a-build#install-command](https://vercel.com/docs/builds/configure-a-build#install-command)
+- [https://medium.com/@avinashukla0704/how-to-deploy-a-combined-react-and-node-js-app-on-vercel-2cb75574cad9](https://medium.com/@avinashukla0704/how-to-deploy-a-combined-react-and-node-js-app-on-vercel-2cb75574cad9)

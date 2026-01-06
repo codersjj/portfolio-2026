@@ -1,11 +1,142 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Button from "../components/ui/Button.astro";
+import { siteConfig } from "@/config/site.ts";
+import HeroCard from "@/components/home/HeroCard.astro";
+import Layout from "@/layouts/Layout.astro";
+import FeaturedWork from "../components/sections/FeaturedWork.astro";
+import BlogSection from "@/components/sections/BlogSection.astro";
+import SocialCard from "@/components/cards/SocialCard.astro";
+import AnimatedText from "@/components/ui/AnimatedText.astro";
+import Explore from "@/components/sections/Explore.astro";
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title="Shane | Frontend & Fullstack Web Developer"
+  description="Welcome to Shane's portfolio. With 5+ years in the industry, I bridge the gap between frontend elegance and backend scalability to create seamless web experiences."
+  keywords="Shane, Senior Frontend Developer, Fullstack Developer, React Expert, Next.js Expert, TypeScript, Node.js, Web Development 2026"
+>
+  <div
+    class="relative site-container z-20 w-full mx-auto mt-16 px-4 md:mt-18 lg:mt-20 xl:px-0"
+  >
+    <div
+      class="relative w-full px-4 flex flex-col items-center justify-between md:flex-row mb-16"
+    >
+      <div
+        class="relative w-full md:max-w-[420px] md:w-1/2 text-center sm:text-left sm:-mt-8"
+      >
+        <!-- Title - AnimatedText animation -->
+        <h1 class="mb-4">
+          <AnimatedText
+            content="Hi there! I'm Shane"
+            delay={0.1}
+            duration={0.5}
+            stagger={0.08}
+            class="text-5xl text-pri leading-tight md:text-4xl lg:text-6xl font-brand"
+          />
+        </h1>
+
+        <!-- First description - AnimatedText animation -->
+        <div class="mb-2">
+          <AnimatedText
+            content="Web Developer expert in the React/Next.js ecosystem. I leverage 5+ years of fullstack expertise to deliver scalable, SEO-optimized solutions that reduce technical debt and maximize ROI."
+            delay={0.3}
+            duration={0.5}
+            stagger={0.015}
+            class="text-base text-neutral-700 dark:text-neutral-300"
+          />
+        </div>
+
+        <!-- Second description - AnimatedText animation -->
+        <div class="mb-4">
+          <AnimatedText
+            content={`I believe in "Architecture with Purpose"—engineering seamless web experiences that solve real-world business problems and provide measurable value to stakeholders.`}
+            delay={0.5}
+            duration={0.5}
+            stagger={0.015}
+            class="text-base text-neutral-700 dark:text-neutral-300"
+          />
+        </div>
+
+        <!-- Button - AOS animation -->
+        <div
+          data-aos="fade-up-sm"
+          data-aos-delay="900"
+          data-aos-duration="500"
+          data-aos-once="true"
+        >
+          <Button
+            url={siteConfig.social.twitter}
+            type="fill"
+            className="m-auto mt-4 text-center sm:text-left sm:m-0 sm:mt-6 max-w-[200px]"
+          >
+            Follow me on 𝕏
+          </Button>
+        </div>
+
+        <!-- Social Cards - AOS animation -->
+        <div
+          class="social mt-8 mb-8"
+          data-aos="fade-up-sm"
+          data-aos-delay="1000"
+          data-aos-duration="600"
+          data-aos-once="true"
+        >
+          <SocialCard displaySocialIds={[]} />
+        </div>
+      </div>
+
+      <!-- HeroCard - AOS animation -->
+      <div
+        class="relative justify-end w-full mt-16 md:flex md:pl-10 md:w-1/2 md:mt-0 md:translate-y-4 xl:translate-y-0"
+        data-aos="fade-left-sm"
+        data-aos-delay="300"
+        data-aos-duration="800"
+        data-aos-once="true"
+      >
+        <HeroCard
+          imageUrl="/assets/home/wave-ai.png"
+          title="Wave AI"
+          link="https://wave-ai-agent-ruddy.vercel.app/"
+        />
+      </div>
+    </div>
+  </div>
+
+  <section
+    class="mt-26 mb-12"
+    data-aos="fade-up-sm"
+    data-aos-delay="100"
+    data-aos-duration="600"
+    data-aos-once="true"
+  >
+    <Explore title="Explore ↓" />
+  </section>
+
+  <section
+    class="mt-26 mb-12"
+    data-aos="fade-up-sm"
+    data-aos-delay="100"
+    data-aos-duration="600"
+    data-aos-once="true"
+  >
+    <FeaturedWork
+      title="Selected Projects ↓"
+      description="Building scalable, user-centric web applications and high-performance sites."
+      limit={5}
+    />
+  </section>
+
+  <section
+    class="mt-26 mb-12"
+    data-aos="fade-up-sm"
+    data-aos-delay="100"
+    data-aos-duration="600"
+    data-aos-once="true"
+  >
+    <BlogSection
+      title="Engineering Log  ↓"
+      description="Notes on fullstack development, architecture, and devops."
+      showViewAllButton={true}
+    />
+  </section>
 </Layout>

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Github",
+    "username": "codersjj",
+    "image": "/assets/social/social-github.jpg",
+    "url": "https://github.com/codersjj/"
+  },
+
+  {
+    "id": 2,
+    "name": "Xiaohongshu",
+    "username": "codersjj",
+    "image": "/assets/social/social-xiaohongshu.jpg",
+    "url": "https://www.xiaohongshu.com/user/profile/5e908cc6000000000100a553"
+  },
+
+  {
+    "id": 3,
+    "name": "Twitter",
+    "username": "codersjj",
+    "image": "/assets/social/social-twitter.jpg",
+    "url": "https://x.com/codersjj"
+  },
+
+  {
+    "id": 4,
+    "name": "figma",
+    "username": "codersjj",
+    "image": "/assets/social/social-figma.jpg",
+    "url": "https://www.figma.com/@codersjj",
+    "isShow": false
+  },
+
+  {
+    "id": 5,
+    "name": "Email",
+    "username": "codersjj",
+    "image": "/assets/social/social-email.jpg",
+    "url": "mailto:codersjj@gmail.com"
+  }
+]
