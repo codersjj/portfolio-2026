@@ -18,7 +18,7 @@
       "Sentry"
     ],
     "image": "/assets/works/expo-ecommerce.png",
-    "video": "/assets/works/expo-ecommerce.mp4",
+    "video": "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757413/expo-ecommerce_mk4sru.mp4",
     "url": "https://expo-ecommerce-rose.vercel.app/",
     "isShow": true
   },
@@ -38,7 +38,7 @@
       "Clerk"
     ],
     "image": "/assets/works/vc-interview.png",
-    "video": "/assets/works/vc-interview.mp4",
+    "video": "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757413/vc-interview_y8tqiq.mp4",
     "url": "https://vc-interview.vercel.app",
     "isShow": true
   },
@@ -54,7 +54,7 @@
       "Fuse.js"
     ],
     "image": "/assets/works/linguo-flow.png",
-    "video": "/assets/works/linguo-flow.mp4",
+    "video": "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757412/linguo-flow_ccx6n9.mp4",
     "url": "https://linguo-flow.vercel.app/",
     "isShow": true
   },
@@ -75,7 +75,7 @@
       "Postgres"
     ],
     "image": "/assets/works/wave-ai.png",
-    "video": "/assets/works/wave-ai.mp4",
+    "video": "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757412/wave-ai_mfyikt.mp4",
     "url": "https://wave-ai-agent-ruddy.vercel.app/",
     "isShow": true
   },
@@ -94,7 +94,7 @@
       "Firebase"
     ],
     "image": "/assets/works/ai-fusion-lab.png",
-    "video": "/assets/works/ai-fusion-lab.mp4",
+    "video": "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757412/ai-fusion-lab_jzgbev.mp4",
     "url": "https://ai-fusion-lab-theta.vercel.app/",
     "isShow": true
   },

@@ -1,15 +1,10 @@
 import type { ImageMetadata } from "astro";
 
 import expoEcommerceImg from "../assets/works/expo-ecommerce.png";
-import expoEcommerceVid from "../assets/works/expo-ecommerce.mp4";
 import vcInterviewImg from "../assets/works/vc-interview.png";
-import vcInterviewVid from "../assets/works/vc-interview.mp4";
 import linguoFlowImg from "../assets/works/linguo-flow.png";
-import linguoFlowVid from "../assets/works/linguo-flow.mp4";
 import waveAiImg from "../assets/works/wave-ai.png";
-import waveAiVid from "../assets/works/wave-ai.mp4";
 import aiFusionLabImg from "../assets/works/ai-fusion-lab.png";
-import aiFusionLabVid from "../assets/works/ai-fusion-lab.mp4";
 import tSenderImg from "../assets/works/t-sender.png";
 import lotteryImg from "../assets/works/nextjs-smartcontract-lottery.png";
 import crowdFundingImg from "../assets/works/crowd-funding.png";
@@ -45,7 +40,8 @@ const works: Work[] = [
       "Sentry",
     ],
     image: expoEcommerceImg,
-    video: expoEcommerceVid,
+    video:
+      "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757413/expo-ecommerce_mk4sru.mp4",
     url: "https://expo-ecommerce-rose.vercel.app/",
     isShow: true,
   },
@@ -66,7 +62,8 @@ const works: Work[] = [
       "Clerk",
     ],
     image: vcInterviewImg,
-    video: vcInterviewVid,
+    video:
+      "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757413/vc-interview_y8tqiq.mp4",
     url: "https://vc-interview.vercel.app",
     isShow: true,
   },
@@ -83,7 +80,8 @@ const works: Work[] = [
       "Fuse.js",
     ],
     image: linguoFlowImg,
-    video: linguoFlowVid,
+    video:
+      "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757412/linguo-flow_ccx6n9.mp4",
     url: "https://linguo-flow.vercel.app/",
     isShow: true,
   },
@@ -105,7 +103,8 @@ const works: Work[] = [
       "Postgres",
     ],
     image: waveAiImg,
-    video: waveAiVid,
+    video:
+      "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757412/wave-ai_mfyikt.mp4",
     url: "https://wave-ai-agent-ruddy.vercel.app/",
     isShow: true,
   },
@@ -125,7 +124,8 @@ const works: Work[] = [
       "Firebase",
     ],
     image: aiFusionLabImg,
-    video: aiFusionLabVid,
+    video:
+      "https://res.cloudinary.com/dukw5cmml/video/upload/v1767757412/ai-fusion-lab_jzgbev.mp4",
     url: "https://ai-fusion-lab-theta.vercel.app/",
     isShow: true,
   },
