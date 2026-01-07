@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { Image, getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
 interface Props {
@@ -30,6 +30,10 @@ const {
 
 // Generate stable id for each video for precise playback control
 const videoId = `workcard-video-${index}-${name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+
+// Get optimized image URL for video poster
+const optimizedImage = await getImage({ src: image });
+const posterUrl = optimizedImage.src;
 ---
 
 <article
@@ -49,7 +53,7 @@ const videoId = `workcard-video-${index}-${name.replace(/[^a-z0-9]+/gi, '-').toL
       <video
         id={videoId}
         src={video}
-        poster={image.src}
+        poster={posterUrl}
         autoplay
         loop
         muted
