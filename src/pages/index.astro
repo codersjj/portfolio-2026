@@ -8,6 +8,7 @@ import BlogSection from "@/components/sections/BlogSection.astro";
 import SocialCard from "@/components/cards/SocialCard.astro";
 import AnimatedText from "@/components/ui/AnimatedText.astro";
 import Explore from "@/components/sections/Explore.astro";
+import waveAiImage from "@/assets/home/wave-ai.png";
 ---
 
 <Layout
@@ -94,7 +95,7 @@ import Explore from "@/components/sections/Explore.astro";
         data-aos-once="true"
       >
         <HeroCard
-          imageUrl="/assets/home/wave-ai.png"
+          imageUrl={waveAiImage}
           title="Wave AI"
           link="https://wave-ai-agent-ruddy.vercel.app/"
         />

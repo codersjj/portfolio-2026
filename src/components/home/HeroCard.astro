@@ -1,7 +1,10 @@
 ---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import bgImage from "@/assets/background.svg";
+
 interface Props {
-  imageUrl: string;
+  imageUrl: ImageMetadata;
   title?: string;
   link?: string;
 }
@@ -41,10 +44,11 @@ const bgImageUrl = bgImage.src;
           style={{ backgroundImage: `url(${bgImageUrl})` }}
         >
         </div>
-        <img
+        <Image
           src={imageUrl}
+          alt={title}
           loading="eager"
-          decoding="auto"
+          decoding="async"
           class="absolute top-0 left-0 right-0 z-30 w-full mx-auto object-cover h-full"
         />
       </div>
