@@ -1,0 +1,84 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageHeader from "@/components/elements/PageHeader.astro";
+import { getCollection } from "astro:content";
+
+// 获取所有的 robotics 内容并过滤 STM32 类别
+const allRobotics = await getCollection("robotics");
+const stm32Posts = allRobotics
+  .filter((post) => post.data.category === "stm32")
+  .sort((a, b) => {
+    const dateA = a.data.publishDate ? new Date(a.data.publishDate).getTime() : 0;
+    const dateB = b.data.publishDate ? new Date(b.data.publishDate).getTime() : 0;
+    return dateB - dateA;
+  });
+---
+
+<Layout
+  title="STM32 Projects & Tutorials | Robotics Space"
+  description="Explore STM32 embedded tutorials, tips, and example code in the Robotics space."
+>
+  <section class="relative z-20 w-fit md:w-full site-container mx-auto my-12 px-7 xl:px-0">
+    <PageHeader
+      title="STM32 Embedded"
+      description="专注于 STM32 单片机的底层原理解析及各类周边外设的设计方案记录。"
+    />
+  </section>
+
+  <section class="relative z-20 w-fit md:w-full site-container mx-auto my-12 px-7 xl:px-0">
+    {stm32Posts.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {stm32Posts.map((post) => (
+          <a
+            href={`/robotics/${post.id}`}
+            class="group flex flex-col justify-between border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 hover:shadow-lg dark:hover:shadow-neutral-900/50 transition-all duration-300 bg-white dark:bg-neutral-900/50 hover:-translate-y-1"
+          >
+            <div>
+              {post.data.img && (
+                <div class="mb-4 aspect-video overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
+                  <img
+                    src={post.data.img}
+                    alt={post.data.img_alt || post.data.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              )}
+              <h3 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                {post.data.title}
+              </h3>
+              <p class="text-neutral-600 dark:text-neutral-400 text-sm mb-4 line-clamp-3">
+                {post.data.description}
+              </p>
+            </div>
+            
+             <div class="flex items-center justify-between mt-4">
+              {post.data.publishDate && (
+                <time class="text-xs text-neutral-500 font-medium whitespace-nowrap">
+                  {new Date(post.data.publishDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </time>
+              )}
+              {post.data.tags && post.data.tags.length > 0 && (
+                <div class="flex flex-wrap items-center gap-1.5 overflow-hidden">
+                  <span class="text-xs px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 truncate max-w-[120px]">
+                    {post.data.tags[0]}
+                  </span>
+                  {post.data.tags.length > 1 && (
+                     <span class="text-xs text-neutral-400">+{post.data.tags.length - 1}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div class="py-20 flex flex-col items-center justify-center border border-dashed border-neutral-300 dark:border-neutral-700 rounded-2xl bg-neutral-50/50 dark:bg-neutral-900/30">
+        <p class="text-neutral-500 italic">内容筹备中，尽请期待...</p>
+      </div>
+    )}
+  </section>
+</Layout>

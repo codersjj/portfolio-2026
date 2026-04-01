@@ -20,5 +20,19 @@ const post = defineCollection({
   }),
 });
 
+const robotics = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/robotics" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    publishDate: z.coerce.date().optional(),
+    category: z.enum(["c-language", "stm32", "others"]).optional(),
+    tags: z.array(z.string()).optional(),
+    img: z.string().optional(),
+    img_alt: z.string().optional(),
+    featured: z.boolean().optional(),
+  }),
+});
+
 // 4. 导出一个 `collections` 对象来注册你的集合
-export const collections = { post };
+export const collections = { post, robotics };

@@ -1,0 +1,151 @@
+---
+title: "C 语言字符串核心算法：查找、替换与去重 (Trim)"
+publishDate: 2026-03-27
+category: "c-language"
+description: "总结 C 语言中原生处理字符串核心算法的思路：子串查找、替换实现以及如何避开 strncpy 的隐藏坑。"
+tags: ["C语言", "算法", "字符串", "嵌入式"]
+---
+
+# C 语言字符串核心算法：查找、替换与去重 (Trim)
+
+在嵌入式开发与 C 语言核心编程中，我们没有像 Python 或 JavaScript 那样方便的 `String.replace()` 或 `String.trim()` 现成方法。所有的字符串操作都需要直接与内存（字符数组）打交道。
+
+本文总结了基于原生 C 语言实现字符串查找、替换与去重（Trim）的标准做法，以及极其容易被忽略的边界风险。
+
+---
+
+## 一、子串查找算法 (`find_all`)
+
+### 核心思路：双层循环逐位比对
+
+查找字符串 `pattern` 在 `text` 中出现的所有位置，核心思想是 **逐位置尝试匹配 pattern**：
+1. 遍历 `text`，将每个位置 `i` 作为可能的匹配起点。
+2. 从 `i` 开始逐字符比较 `pattern`。
+3. 如果全部字符都匹配，则记录当前位置 `i`，继续搜索后面的内容。
+
+### 推荐的边界判断写法
+
+```c
+for (int i = 0; i + patternLen <= textLen; i++) {
+    bool isMatch = true;
+
+    for (int j = 0; j < patternLen; j++) {
+        if (text[i + j] != pattern[j]) {
+            isMatch = false;
+            break;
+        }
+    }
+
+    if (isMatch) {
+        positions[count++] = i;
+    }
+}
+```
+
+> [!tip] 为什么是 `i + patternLen <= textLen`？
+> 含义非常直观：**"从 `i` 开始，剩余空间还能容纳得下一个完整的 `pattern`"**。
+> 如果写错成了 `i < textLen - patternLen`，很容易漏掉最后一次精确的边界匹配（恰好占满尾部的情况）。
+
+---
+
+## 二、字符串替换 (`replace`)
+
+字符串的替换操作，本质上是一次组合式的**内存拼接**。替换逻辑通常分为三段：
+
+```text
+前缀 (匹配位置之前) + 替换后的新字符串 + 后缀 (匹配位置之后)
+```
+
+**实现步骤拆解**：
+1. 找到匹配位置。
+2. 复制匹配前的部分（Prefix）。
+3. 拼接新字符串（New String）。
+4. 拼接剩余部分（Suffix）。
+
+举个例子：
+```text
+原始：hello world
+目标：将 "world" 替换为 "C语言"
+拼接： "hello " + "C语言" + "\0"
+```
+
+这种拼接通常依赖于 `strncpy` 和 `strcat`。这就引出了下一个致命问题。
+
+---
+
+## 三、`strncpy` 的深坑
+
+有很多教程会强调：**为了安全，请用 `strncpy` 替代 `strcpy`**。
+但这只说对了一半！`strncpy` 并不总是保证目标字符串以 `'\0'` 结尾。
+
+> [!danger] 危险时刻
+> 只有当请求拷贝的长度 `n` **严格大于** 源字符串长度时，`strncpy` 才会在末尾补上 `'\0'`。
+> 如果 `n <= src长度`，它拷贝完指定的字符就直接收工了！
+
+例如截取前缀：
+```c
+char output[50];
+strncpy(output, text, 5); // 拷贝前5个字符
+```
+此时 `output` 中可能是 `h e l l o ? ? ? ?`。
+
+如果你接着使用 `strcat(output, new_str)` 去拼接剩余部分，`strcat` 因为找不到 `'\0'`，就会**一直向后读取未知的内存**，导致段错误或进程崩溃！
+
+### 标准安全写法
+**任何时候使用 `strncpy`，请随手补上终止符：**
+
+```c
+strncpy(output, text, prefix_len);
+output[prefix_len] = '\0';  // 手动补齐，拯救自己
+
+strcat(output, new_str);
+```
+
+---
+
+## 四、首尾去重：Trim 算法的优雅实现
+
+处理串口接收到的不定长指令时，常常需要去除首尾的空格或换行符（如 `\r\n`）。
+处理 Trim 有个非常经典的双指针思路：**找到首个合法字符 (start)，找到末尾合法字符 (end)，然后把中间的内容搬空即可**。
+
+```c
+char *trim(const char *input, char *output) {
+    // 1. 确定开头
+    const char *start = input;
+    while (*start && isspace(*start)) {
+        start++;
+    }
+
+    // 2. 找到最末端
+    const char *end = start;
+    while (*end) {
+        end++;
+    }
+    end--; // 退回到最后一个有效字符
+
+    // 3. 确定结尾
+    while (end > start && isspace(*end)) {
+        end--;
+    }
+
+    // 4. 整体覆盖粘贴
+    char *out = output;
+    while (start <= end) {
+        *out++ = *start++;
+    }
+    *out = '\0'; // 永远别忘了最后这一下！
+
+    return output;
+}
+```
+
+这种 `[start, end]` 首尾夹逼然后整体搬运的打法，复杂度为 $O(n)$，在单片机的解析业务中非常高效。
+
+---
+
+## 结语：C 语言字符串经验谈
+
+在 C 语言中操纵字符串时：
+1. 你的大脑里永远要给 `'\0'` 留一个卡槽位。
+2. 越界访问是家常便饭，特别注意目标字符数组长度是否包含结尾的终止符。
+3. 把处理字符串的代码当作处理不定长内存块来看待，才能真正做到不出错。

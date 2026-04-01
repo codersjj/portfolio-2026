@@ -1,0 +1,96 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageHeader from "@/components/elements/PageHeader.astro";
+import { getCollection } from "astro:content";
+
+// 获取所有的 robotics 内容
+const allRobotics = await getCollection("robotics");
+
+// 确保根据发布日期排序，可以处理没有日期的情况
+const sortedRobotics = allRobotics.sort((a, b) => {
+  const dateA = a.data.publishDate ? new Date(a.data.publishDate).getTime() : 0;
+  const dateB = b.data.publishDate ? new Date(b.data.publishDate).getTime() : 0;
+  return dateB - dateA;
+});
+
+const cLanguagePosts = sortedRobotics.filter(post => post.data.category === 'c-language');
+const stm32Posts = sortedRobotics.filter(post => post.data.category === 'stm32');
+const otherPosts = sortedRobotics.filter(post => post.data.category !== 'c-language' && post.data.category !== 'stm32');
+---
+
+<Layout 
+  title="Robotics & Embedded Systems" 
+  description="C语言、STM32嵌入式开发学习笔记与实战教程空间。"
+>
+  <section class="relative z-20 w-fit md:w-full site-container mx-auto my-12 px-7 xl:px-0">
+    <PageHeader
+      title="Robotics Space"
+      description="涵盖 C 语言基础、底层原理剖析以及 STM32 嵌入式系统的实战开发。如果你也是嵌入式和机器人的爱好者，欢迎查阅。"
+    />
+  </section>
+
+  <section class="relative z-20 w-fit md:w-full site-container mx-auto my-12 px-7 xl:px-0 flex flex-col gap-16">
+    <!-- C Language Section -->
+    <div>
+      <div class="flex flex-row items-center justify-between mb-6 border-b pb-3 border-neutral-200 dark:border-neutral-800">
+         <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">C Language <span class="text-lg font-normal text-neutral-500 ml-2">C语言探索</span></h2>
+         <a href="/robotics/c-language" class="text-sm font-medium text-primary hover:underline flex items-center gap-1 group">
+             全部文章 <span class="group-hover:translate-x-1 transition-transform">→</span>
+         </a>
+      </div>
+      {cLanguagePosts.length > 0 ? (
+        <ul class="flex flex-col gap-4">
+          {cLanguagePosts.map((post) => (
+            <li class="border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+              <a href={`/robotics/${post.id}`} class="block">
+                <h3 class="text-xl font-semibold text-primary mb-2 hover:underline">{post.data.title}</h3>
+                <p class="text-neutral-600 dark:text-neutral-400 text-sm mb-3 line-clamp-2">{post.data.description}</p>
+                {post.data.publishDate && (
+                  <time class="text-xs text-neutral-500 dark:text-neutral-500">
+                    {new Date(post.data.publishDate).toLocaleDateString()}
+                  </time>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="p-8 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/30 text-center">
+            <p class="text-neutral-500 italic">内容筹备中，尽请期待...</p>
+        </div>
+      )}
+    </div>
+
+    <!-- STM32 Section -->
+    <div>
+      <div class="flex flex-row items-center justify-between mb-6 border-b pb-3 border-neutral-200 dark:border-neutral-800">
+         <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">STM32 Embedded <span class="text-lg font-normal text-neutral-500 ml-2">嵌入式开发</span></h2>
+         <a href="/robotics/stm32" class="text-sm font-medium text-primary hover:underline flex items-center gap-1 group">
+             全部内容 <span class="group-hover:translate-x-1 transition-transform">→</span>
+         </a>
+      </div>
+      {stm32Posts.length > 0 ? (
+        <ul class="flex flex-col gap-4">
+          {stm32Posts.map((post) => (
+            <li class="border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+              <a href={`/robotics/${post.id}`} class="block">
+                <h3 class="text-xl font-semibold text-primary mb-2 hover:underline">{post.data.title}</h3>
+                <p class="text-neutral-600 dark:text-neutral-400 text-sm mb-3 line-clamp-2">{post.data.description}</p>
+                {post.data.publishDate && (
+                  <time class="text-xs text-neutral-500 dark:text-neutral-500">
+                    {new Date(post.data.publishDate).toLocaleDateString()}
+                  </time>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="p-8 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/30 text-center">
+            <p class="text-neutral-500 italic">内容筹备中，尽请期待...</p>
+        </div>
+      )}
+    </div>
+    
+  </section>
+</Layout>

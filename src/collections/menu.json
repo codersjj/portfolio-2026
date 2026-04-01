@@ -12,6 +12,10 @@
 		"url": "/works"
 	},
 	{
+		"name": "Robotics",
+		"url": "/robotics"
+	},
+	{
 		"name": "About",
 		"url": "/about"
 	}
