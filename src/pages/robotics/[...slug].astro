@@ -86,6 +86,19 @@ const filtered = headings.filter((h) => h.depth <= 3);
           {remarkPluginFrontmatter?.minutesRead && (
             <span>{remarkPluginFrontmatter.minutesRead}</span>
           )}
+          {remarkPluginFrontmatter?.lastModified && (
+            <span class="article-meta-divider"></span>
+          )}
+          {remarkPluginFrontmatter?.lastModified && (
+            <span>
+              Updated:{" "}
+              {new Date(remarkPluginFrontmatter.lastModified).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
+          )}
         </div>
       </header>
 

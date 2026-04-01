@@ -6,6 +6,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 
 import { remarkReadingTime } from "./src/plugins/remark-reading-time";
+import { remarkModifiedTime } from "./src/plugins/remark-modified-time";
 
 // https://astro.build/config
 export default defineConfig({
@@ -16,6 +17,6 @@ export default defineConfig({
 
   integrations: [mdx(), sitemap()],
   markdown: {
-    remarkPlugins: [remarkReadingTime],
+    remarkPlugins: [remarkReadingTime, remarkModifiedTime],
   },
 });
