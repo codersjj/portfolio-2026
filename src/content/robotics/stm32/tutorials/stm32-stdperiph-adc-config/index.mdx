@@ -1,0 +1,141 @@
+---
+title: STM32 标准外设库与 ADC 配置避坑全指南
+description: 记录了在 MDK v6 中配置 STM32F10x 标准外设库的注意事项，以及 ADC 开发过程中的踩坑经验与底层梳理。
+publishDate: 2026-04-03
+category: stm32
+tags: [stm32, keil, mdk, adc, stdperiph, embedded]
+---
+
+## MDK v6 STM32 标准外设库配置笔记
+
+### 问题背景
+
+在 VS Code + Arm Keil Studio Pack (MDK v6) 创建新项目后，使用 `RCC_APB2PeriphClockCmd` 等标准外设库函数可能会报错：
+
+```text
+Call to undeclared function 'RCC_APB2PeriphClockCmd'
+Use of undeclared identifier 'RCC_APB2Periph_GPIOA'
+```
+
+### 根本原因
+
+MDK v6 默认引入的是 **CMSIS 6.x**，但 STM32F1xx_DFP 附带的标准外设库（StdPeriph）是为 **CMSIS 5** 编写的。两者存在 API 不兼容，具体表现为：
+- CMSIS 6 将 `NVIC->IP[]` 改名为 `NVIC->IPR[]`
+- 导致 `misc.c` 编译失败：`error: no member named 'IP' in 'NVIC_Type'`
+
+### 解决步骤（最小改动）
+
+#### 第一步：修改 `.csolution.yml`，锁定 CMSIS 5
+
+```yaml
+solution:
+  packs:
+    - pack: ARM::CMSIS@5.9.0   # 锁定 CMSIS 5，避免与 StdPeriph 不兼容
+
+  target-types:
+    - type: STM32F107VC
+      device: STM32F107VC
+      # ...
+```
+
+#### 第二步：修改 `.cproject.yml`，加入 StdPeriph 组件
+
+```yaml
+project:
+  components:
+    - component: ARM::CMSIS:CORE
+    - component: Device:Startup
+    - component: Device:StdPeriph Drivers:Framework  # 基础框架，必须加
+    - component: Device:StdPeriph Drivers:RCC
+    - component: Device:StdPeriph Drivers:GPIO       # 按需添加其他外设
+  # ...
+```
+
+> **提示**：
+> - `USE_STDPERIPH_DRIVER` 和芯片系列宏（如 `STM32F10X_CL`）**不需要手动添加**，`Framework` 组件的 Pack 元数据会自动注入。
+> - CMSIS 版本也**不需要在组件里指定** `@5.6.0`，`.csolution.yml` 里锁定后整个项目都会生效。
+> - MDK v6 不使用 `c_cpp_properties.json`，配置均在 `.yml` 文件中。每次修改 `.yml` 后需要重新 Build（CMSIS 面板 → Build 按钮）。
+
+---
+
+## 学习笔记：STM32F10x 标准外设库体系归纳
+
+**STM32F10x Standard Peripherals Library** 是 ST 官方为 F1 系列提供的硬件抽象层。它将底层的寄存器操作封装成 C 语言函数，涵盖了三个抽象层级：
+
+|层级|核心文件/路径|核心作用|
+|---|---|---|
+|**寄存器映射层**|`stm32f10x.h`|建立寄存器基地址与 C 结构体的映射，实现"零错误"偏移。|
+|**驱动 API 层**|`stm32f10x_xxx.c/h`|提供通用的驱动接口（如 `ADC_Init`），屏蔽复杂的位操作。|
+|**应用示例层**|`Project/Examples`|提供针对不同编译器（MDK/IAR）的官方 Demo 和模板。|
+
+### 官方文档避坑
+
+由于 ST 目前主推 HAL/LL 库，标准的 `UM0427` (PDF 格式的用户手册) 官网已下架。现行权威参考是 **`.chm` 帮助文件**（在标准库包的 `Libraries\STM32F10x_StdPeriph_Driver` 目录下）。若打开后右侧空白，需"右键属性 -> 解除锁定"。最快捷的方式是**直接阅读 `stm32f10x_xxx.c` 源文件的函数头部注释**，这正是 `.chm` 的原始来源。
+
+![Pasted image 20260402214353](/assets/robotics/stm32/Pasted%20image%2020260402214353.png)
+
+详情请查阅官方文档: 
+https://www.st.com/resource/en/application_note/an2953-how-to-migrate-from-the-stm32f10xxx-firmware-library-v203-to-the-stm32f10xxx-standard-peripheral-library-v300-stmicroelectronics.pdf
+
+---
+
+## STM32 ADC 与 GPIO 配置避坑指南
+
+### GPIO 模拟输入模式
+
+在配置 ADC 采集引脚时，GPIO 必须设置为模拟输入模式 (`GPIO_Mode_AIN`)。
+
+- **特性**：禁用数字输入/输出缓冲器（施密特触发器）和内部上拉/下拉电阻。信号直接进入 ADC 模块，无数字噪声干扰。
+- **速度配置**：模拟模式下**不需要**配置 `GPIO_Speed`（仅针对输出模式）。
+
+#### 代码规范展示
+```c
+// 推荐写法：使用 {0} 将所有成员清零，防止垃圾值干扰
+GPIO_InitTypeDef GPIO_InitStruct = {0}; 
+
+GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AIN; // 模拟模式
+// GPIO_InitStruct.GPIO_Speed 无需设置
+GPIO_Init(GPIOA, &GPIO_InitStruct);
+```
+
+### 时钟配置核心陷阱
+
+STM32 的外设默认处于"断电"状态，必须使用 `RCC_APB2PeriphClockCmd` (ADC 和相应 GPIO 在 APB2 总线上) 等开启。
+
+**ADC 的输入时钟频率不得超过 14 MHz**。很多官方示例中的 `RCC_ADCCLKConfig(RCC_PCLK2_Div4)` 是基于较低频率编写的。如果系统主频是 72MHz，选择 `Div4` 将导致 18MHz（超过 14MHz），致使采样不准。必须使用 `RCC_PCLK2_Div6` (12MHz) 或 `RCC_PCLK2_Div8` (9MHz)。
+
+#### 完整初始化模板
+
+```c
+void ADC_GPIO_Init(void)
+{
+    // 1. 开启外设时钟
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_GPIOA, ENABLE);
+    // RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE); // 如果使用 DMA
+
+    // 2. 配置 GPIO
+    GPIO_InitTypeDef GPIO_InitStruct = {0}; 
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AIN; 
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    // 3. 配置 ADC 时钟 (以 PCLK2=72MHz 为例，须 Div6 以 <14MHz)
+    RCC_ADCCLKConfig(RCC_PCLK2_Div6); 
+}
+```
+
+---
+
+## STM32 ADC 内部特殊通道学习笔记
+
+在 STM32 的 ADC 架构中，除了外部引脚（ADCx_INn），还集成了一些关键的内部信号源：
+
+- **Temp. sensor (内部温度传感器)**：监测硅片内部温度，常接 `ADC1_IN16` / `IN18`。
+- **VREFINT (内部参考电压)**：稳定的 ~1.2V 基准，反推校准 Vdda，常接 `ADC1_IN17`。
+- **VBAT (电池电压监控)**：监测 RTC 后备电池。
+
+**开发注意点**：
+1. 内部通道通常只连接在 ADC1 (或 ADC3)，且需代码显式使能（如 `ADC_EnableTemperatureSensor()`）。
+2. **采样时间**要求极长（内部传感器阻抗大，通常需 >10μs）。
+3. 寻找确切配置首选 **Reference Manual** 中的 `ADC internal channels` 章节，寻电气参数选 **Datasheet** 的 `Electrical characteristics`。
