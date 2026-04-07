@@ -1,0 +1,178 @@
+---
+title: "20260406 分享 主题 VS Code"
+publishDate: 2026-04-06
+category: "stm32"
+description: "VS Code 的安装和嵌入式开发环境配置"
+tags: ["VS Code", "C", "STM32"]
+---
+
+# 20260406 分享 主题 VS Code
+
+## 0. 官网及官方文档
+
+官网：https://code.visualstudio.com/
+
+官方文档：https://code.visualstudio.com/docs
+
+> 注意：我现在分享的内容将来一定会过时，所以一切以官方文档为准。
+
+## 1. 安装完成后启动 VS Code
+
+第一次打开 VS Code，会出现一个 Welcome 页面，可以根据上面的说明自己操作一遍，也可以先关掉，后面想看时，可以通过如下方式打开：
+
+> Open the Welcome page from the **Help** > **Welcome** menu or use the **Help: Welcome** command from the Command Palette (Ctrl+Shift+P).
+
+相关文档：https://code.visualstudio.com/docs/getstarted/tips-and-tricks
+
+## 2. C 环境配置
+
+安装扩展 C/C++
+
+如果下载太慢，可以连手机热点试试。
+
+根据官方文档进行操作：https://code.visualstudio.com/docs/languages/cpp
+
+
+
+在 PowerShell 中，你可以使用以下几种方法来查看 `gcc` 和 `g++` 命令的具体位置：
+
+### 1. 使用 `Get-Command` (PowerShell 推荐)
+
+这是 PowerShell 原生的命令，可以显示可执行文件的完整路径以及来源信息。
+
+```powershell
+Get-Command gcc
+Get-Command g++
+```
+
+或者使用简写：
+
+```powershell
+gcm gcc
+gcm g++
+```
+
+
+根据你提供的版本信息 (`MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders`)，这通常是一个**独立构建版（Standalone/WinLibs）**的 MinGW，而不是通过 MSYS2 安装的。
+
+- **预期路径**：通常位于类似 `D:\mingw64\bin\gcc.exe` 或 `C:\Program Files\mingw-w64\...\bin\gcc.exe` 的路径下。
+- **为什么能看到命令**：说明你的系统环境变量 `PATH` 中已经包含了该编译器的 `bin` 目录。
+
+
+
+> 如果之前系统环境变量的 Path（System variables 的 Path）中有过相关的配置，那么它会优先生效，在 **Edit environment variables for your account** 中的 Path 中的配置便不会生效。两者是**合并**关系，系统在前，用户在后。我们可以先在**用户变量**里添加 GCC 路径。如果发现执行 `gcc --version` 还是旧版本（或者没反应），再去**系统变量**里检查是否有旧路径挡在前面，并将其**删除**，或者在**系统变量**里新增一条并将其上移到那条旧路径的配置上面。
+
+
+## 3. Arm Keil MDK v6 Editions
+
+官方网站：https://www.keil.arm.com/keil-mdk/
+
+Arm Keil MDK-Community Edition 官方安装指南：https://www.keil.arm.com/mdk-community/
+
+Arm Keil Studio for VS Code 官方安装文档：https://mdk-packs.github.io/vscode-cmsis-solution-docs/installation.html
+
+> 可以在 ARM 官网上注册一下账号，正常情况下官方会在 72 小时内审核通过（我当时注册后，大约等了一天时间审核通过，审核通过后就能正常登录并下载 Compiler 等官方资源）
+
+### 3.1. 配置 clangd（解决 stdio.h 问题）
+
+在项目根目录创建 `.clangd` 文件：
+
+```yaml
+CompileFlags:
+  Add:
+    - --target=x86_64-w64-mingw32
+    - -IC:/mingw64/include
+```
+
+> [!note]
+> 路径根据实际 MinGW 安装位置调整
+
+
+保存文件内容，`Ctrl + Shift + P`，输入 `clangd: Restart language server`，回车
+
+### 3.2 新建 CMSIS Solution（原 .uvprojx 项目）
+
+以编写一个点灯例程为例，因为代码中用到了 RCC、GPIO 等外设，所以我们需要进行相应的配置将相关的文件包含到项目中：
+
+1. 打开项目目录下的 `xxx.cproject.yml` 文件（如：`Project-XHKJ\Project-XHKJ.cproject.yml`），根据项目中使用到的外设，配置对应的 components：
+```yml
+  # List components to use for your application.
+
+  # A software component is a re-usable unit that may be configurable.
+
+  components:
+
+    - component: ARM::CMSIS:CORE
+
+    - component: Device:Startup
+
+    - component: Device:StdPeriph Drivers:Framework
+
+    - component: Device:StdPeriph Drivers:RCC
+
+    - component: Device:StdPeriph Drivers:GPIO
+```
+
+MDK v6 默认引入的是 **CMSIS 6.x**，但 STM32F1xx_DFP 附带的标准外设库（StdPeriph）是为 **CMSIS 5** 编写的。
+
+两者存在 API 不兼容，具体表现为：
+
+- CMSIS 6 将 `NVIC->IP[]` 改名为 `NVIC->IPR[]`
+- 导致 `misc.c` 编译失败：`error: no member named 'IP' in 'NVIC_Type'`
+
+2. 打开 sub-folder 目录下的 `xxx.csolution.yml` 文件（如：`xhkj-sol.csolution.yml`），指定 CMSIS 的版本：
+
+```yml
+  # List the packs that define the device and/or board.
+
+  packs:
+
+    - pack: Keil::STM32F1xx_DFP
+
+    - pack: ARM::CMSIS@5.9.0
+```
+
+
+### 3.3. 运行旧项目
+
+以点灯例程为例：
+
+build 失败，core_cm3.c 文件中报错，解决方案：
+
+找到这 4 个函数，按如下方式改写（利用 AAPCS 调用约定：第一个参数在 R0，返回值也在 R0）：
+
+```c
+/* -------- __get_PSP -------- */
+uint32_t __get_PSP(void) __attribute__( ( naked ) );
+uint32_t __get_PSP(void)
+{
+  __ASM volatile ("MRS R0, PSP\n\t"
+                  "BX  LR\n\t");
+}
+
+/* -------- __set_PSP -------- */
+void __set_PSP(uint32_t topOfProcStack) __attribute__( ( naked ) );
+void __set_PSP(uint32_t topOfProcStack)
+{
+  __ASM volatile ("MSR PSP, R0\n\t"
+                  "BX  LR\n\t");
+}
+
+/* -------- __get_MSP -------- */
+uint32_t __get_MSP(void) __attribute__( ( naked ) );
+uint32_t __get_MSP(void)
+{
+  __ASM volatile ("MRS R0, MSP\n\t"
+                  "BX  LR\n\t");
+}
+
+/* -------- __set_MSP -------- */
+void __set_MSP(uint32_t topOfMainStack) __attribute__( ( naked ) );
+void __set_MSP(uint32_t topOfMainStack)
+{
+  __ASM volatile ("MSR MSP, R0\n\t"
+                  "BX  LR\n\t");
+}
+```
+
+> **关键点**：V6/Clang 不允许在 naked 函数里写 `uint32_t result=0;` 这类 C 语句，也不允许用 `"r"(topOfProcStack)` 这种约束引用参数。改写后直接用寄存器名，完全符合 AAPCS（R0 = 第一个参数 = 返回值）。
